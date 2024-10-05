@@ -310,8 +310,11 @@ def deep_scan():
     as this is a pretty big file and i need to look through the whole file
 
 
-    also i will be usi
-    """
+    Now i have a better idea! I'll make it iterate around the important files first, then the second most
+    imp and in that order..............
+
+
+   """
 
     def load_hash_file(csv_file):
         df = pd.read_csv(csv_file, header=None)
@@ -335,6 +338,7 @@ def deep_scan():
                 print("The scan has been started.....")
                 print("Opening the C file")
                 start_directory = "C:\\"
+                imp_directories = ["C:\Windows", "C:\Program Files", "C:\Program Files (x86)" ]
 
                 print("Variable initialized")
                 iterate_files(start_directory)
@@ -355,6 +359,7 @@ def real_time_monitoring():
 
 
 def quick_scan():
+    
     return
 
 
