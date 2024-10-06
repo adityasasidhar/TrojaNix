@@ -1,10 +1,11 @@
 import time
 
+
 # im first gonna go with the file based imports, then
 # the visualization imports,
 
 # then the ml part
-
+start_time = time.time()
 # also gonna go with the system resource monitors and the time module
 
 # also im gonna add the data manipulation modules later on in
@@ -21,7 +22,7 @@ import pathlib
 
 print("File monitors initialized")
 time.sleep(0.2)
-start_time = time.time()
+
 
 # ________________________________________________________________________________________________________________
 
@@ -53,13 +54,13 @@ time.sleep(0.2)
 
 
 import psutil
-import GPUtil
-import speedtest
-import cpuinfo
-import platform
-import subprocess
-import capstone
-import lief
+# import GPUtil
+# import speedtest
+# import cpuinfo
+# import platform
+# import subprocess
+# import capstone
+# import lief
 
 print("System monitors initialized")
 time.sleep(0.2)
@@ -80,8 +81,8 @@ time.sleep(0.2)
 
 import pefile
 import hashlib
-from elftools.elf.elffile import ELFFile
-import yara
+# from elftools.elf.elffile import ELFFile
+# import yara
 
 print("Security Analysis tools initialized")
 time.sleep(0.2)
@@ -244,34 +245,10 @@ def ram_usage():
 
 
 def iterate_files(start_directory):
-    """
-    the ffollowing iterates through every file in the system
-
-    """
     for dirpath, dirnames, filenames in os.walk(start_directory):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
-            print(file_path)
-            """i am currently going with just the namimg and later on add 
-            the functions that will go through the signatures for a static analysis
-            """
-
-
-def calculate_sha256(file_path):
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-
-def calculate_sha1(file_path):
-    sha1_hash = hashlib.sha1()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha1_hash.update(byte_block)
-    return sha1_hash.hexdigest()
-
+            yield file_path
 
 """
   I just would like to make it clear that md5 hashes are not very ideal for critical security purposes as 
@@ -291,6 +268,22 @@ def calculate_sha1(file_path):
 """
 
 
+def calculate_sha256(file_path):
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def calculate_sha1(file_path):
+    sha1_hash = hashlib.sha1()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha1_hash.update(byte_block)
+    return sha1_hash.hexdigest()
+
+
 def calculate_md5(file_path):
     md5_hash = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -305,26 +298,57 @@ Now i will be classifying the device based on its capabilities
 """
 
 
+
+
 def deep_scan():
-    """i am loading the file only when i need it to avoid unnecessary file and storage requirements
-    as this is a pretty big file and i need to look through the whole file
 
+    malware_list = []
 
-    Now i have a better idea! I'll make it iterate around the important files first, then the second most
-    imp and in that order..............
-
-
-   """
+    deep_scan_start_time = time.time()
 
     def load_hash_file(csv_file):
         df = pd.read_csv(csv_file, header=None)
         return set(df[0])
 
-    def check_for_malware_signature(file_hash):
-        if file_hash in """add the function to the file checker""""":
-            return True
+    def check_for_malware(file_path, sha256_hash_file):
+        total_malwares_found = 0
+        file_hash = calculate_sha256(file_path)
+        if file_hash is not None:
+            if file_hash in sha256_hash_file:
+                print(f"MALWARE DETECTED in {file_path}")
+                malware_list.append(file_path)
+                total_malwares_found += 1
+                return True
+            else:
+                print(f"No malware detected in {file_path}")
+                return False
         else:
+            print(f"Skipping {file_path} due to an error.")
             return False
+
+
+    def iterate_files_and_check(start_directory, sha256_hash_file):
+        for dirpath, dirnames, filenames in os.walk(start_directory):
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    print(f"Checking file: {file_path}")
+                    check_for_malware(file_path, sha256_hash_file)
+                except PermissionError:
+                    print(f"Permission denied: {file_path}. Skipping this file.")
+
+                    continue
+                except Exception as e:
+                    print(f"Error processing file {file_path}: {str(e)}. Skipping this file.")
+                    continue
+
+
+
+    """Load the SHA-256 hash file only when needed to avoid unnecessary file and storage requirements.
+       Now the function will iterate through all files in the specified directories.
+    """
+
+
 
     ram_use = ram_usage()
     ram = total_available_ram()
@@ -332,47 +356,51 @@ def deep_scan():
     cpu_usage = current_cpu_usage()
     charging = get_battery_status()
 
-    if current_cpu_usage() < 20 and total_available_ram() >= 4 and battery_capacity >= 60 and charging == True:
-        while cpu_usage < 85 and ram_use < 70:
-            try:
-                print("The scan has been started.....")
-                print("Opening the C file")
-                start_directory = "C:\\"
-                imp_directories = ["C:\Windows", "C:\Program Files", "C:\Program Files (x86)" ]
+    if cpu_usage < 20 and ram >= 4 and battery_capacity >= 60 and charging:
+        try:
+            sha256_hash_file = load_hash_file('full_sha256.txt')
 
-                print("Variable initialized")
-                iterate_files(start_directory)
-                print("                                SCAN COMPLETE                  ")
+            start_directory = "C:\\"
 
-            except Exception as error:
-                print("an error occurred while iterating files")
+            print(f"MAIN DIRECTORY INITIALIZED...")
 
-            else:
-                print("nothing went wrong")
+
+            iterate_files_and_check(start_directory, sha256_hash_file)
+
+            print("                                      SCAN COMPLETE                                  ")
+
+        except Exception as error:
+            print(f"An error occurred: {error}")
+
+        else:
+            print("Scan completed successfully.")
 
     else:
-        print("Your System does not meet the current requirements")
+        print("Your system does not meet the current requirements for a deep scan.")
+
+    deep_scan_time = time.time() - deep_scan_start_time
+    print("TOTAL TIME IN SECONDS FOR THE SCAN COMPLETE: "+str(deep_scan_time) )
 
 
-def real_time_monitoring():
-    return
+
+
+if __name__ == "__main__":
+    deep_scan()
 
 
 def quick_scan():
-    
+    """
+    for the quick scan im gonna use a combination of sha1 and sha 256 for faster scanning, its not like i wanna
+    iterate through the entire thing, also any changes to the previous hash function will ruin the quick scan
+    functionality
+
+    """
     return
 
 
+def real_time_monitoring():
 
-
-
-
-
-
-
-
-
-
+  return
 
 
 
