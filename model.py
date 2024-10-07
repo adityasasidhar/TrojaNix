@@ -37,7 +37,7 @@ time.sleep(0.2)
 #              lot of time to initialize
 # import tensorflow
 
-import learn
+
 # import keras
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -299,54 +299,83 @@ Now i will be classifying the device based on its capabilities
 
 
 
-
 def deep_scan():
-
     malware_list = []
-
     deep_scan_start_time = time.time()
+    total_files_checked = 0
+    total_malwares_found = 0
+    exception_count = 0
+
+
 
     def load_hash_file(csv_file):
         df = pd.read_csv(csv_file, header=None)
         return set(df[0])
 
+
+
+    def calculate_sha256(file_path):
+        # A placeholder function for SHA-256 calculation. You need to implement this.
+        sha256_hash = hashlib.sha256()
+        try:
+            with open(file_path, 'rb') as f:
+                while chunk := f.read(8192):
+                    sha256_hash.update(chunk)
+            return sha256_hash.hexdigest()
+        except Exception as e:
+            print(f"Error calculating SHA-256 for {file_path}: {str(e)}")
+            return None
+
+
+    """Load the SHA-256 hash file only when needed to avoid unnecessary file and storage requirements.
+          Now the function will iterate through all files in the specified directories.
+       """
+
+
+
     def check_for_malware(file_path, sha256_hash_file):
-        total_malwares_found = 0
+        nonlocal total_malwares_found
         file_hash = calculate_sha256(file_path)
         if file_hash is not None:
+
+
             if file_hash in sha256_hash_file:
                 print(f"MALWARE DETECTED in {file_path}")
                 malware_list.append(file_path)
                 total_malwares_found += 1
                 return True
+
+
             else:
+
                 print(f"No malware detected in {file_path}")
                 return False
+
+
         else:
             print(f"Skipping {file_path} due to an error.")
             return False
 
 
+
+
     def iterate_files_and_check(start_directory, sha256_hash_file):
+        nonlocal total_files_checked, exception_count
         for dirpath, dirnames, filenames in os.walk(start_directory):
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)
+                total_files_checked += 1
                 try:
                     print(f"Checking file: {file_path}")
                     check_for_malware(file_path, sha256_hash_file)
                 except PermissionError:
                     print(f"Permission denied: {file_path}. Skipping this file.")
-
+                    exception_count += 1
                     continue
                 except Exception as e:
                     print(f"Error processing file {file_path}: {str(e)}. Skipping this file.")
+                    exception_count += 1
                     continue
-
-
-
-    """Load the SHA-256 hash file only when needed to avoid unnecessary file and storage requirements.
-       Now the function will iterate through all files in the specified directories.
-    """
 
 
 
@@ -356,36 +385,58 @@ def deep_scan():
     cpu_usage = current_cpu_usage()
     charging = get_battery_status()
 
+
+
+
     if cpu_usage < 20 and ram >= 4 and battery_capacity >= 60 and charging:
         try:
             sha256_hash_file = load_hash_file('full_sha256.txt')
 
-            start_directory = "C:\\"
+            start_directory = "C:\\"  # Starting directory
 
             print(f"MAIN DIRECTORY INITIALIZED...")
 
-
             iterate_files_and_check(start_directory, sha256_hash_file)
 
-            print("                                      SCAN COMPLETE                                  ")
+            print("_____________________________________________SCAN COMPLETE______________________________________________________")
+
+
+
+
 
         except Exception as error:
             print(f"An error occurred: {error}")
 
-        else:
-            print("Scan completed successfully.")
 
+
+        else:
+
+            print("Scan completed successfully.")
     else:
+
         print("Your system does not meet the current requirements for a deep scan.")
 
     deep_scan_time = time.time() - deep_scan_start_time
-    print("TOTAL TIME IN SECONDS FOR THE SCAN COMPLETE: "+str(deep_scan_time) )
 
+    print(f"TOTAL TIME IN SECONDS FOR THE SCAN COMPLETE: {deep_scan_time}")
+    print(f"TOTAL FILES CHECKED: {total_files_checked}")
+    print(f"TOTAL MALWARES FOUND: {total_malwares_found}")
+    print(f"TOTAL EXCEPTIONS ENCOUNTERED: {exception_count}")
+
+
+    if malware_list:
+
+        print("Malware files found:")
+
+        for malware in malware_list:
+            print(f"- {malware}")
 
 
 
 if __name__ == "__main__":
     deep_scan()
+
+
 
 
 def quick_scan():
