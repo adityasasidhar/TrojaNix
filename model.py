@@ -135,9 +135,22 @@ devices are not made in the same way
                         1. Quick scan
                         2. Deep scan
                         3. Real time protection with AI
+                                      |
+                                      |
+                                      |
+                    Step 4) we also will have a settler function which will hold the hash of every file on 
+                            the device and store it with respect to its location... and when the deep scan is 
+                            initialized the second time it will simply compare all of it....if irregularities 
+                            are found then it will simply scan in for malware and update its location and 
+                            hash value
+                                       |
+                                       |
+                                       |
+                    Step 5) 
+                    
 
 
-                . Other than that, we also are pulling a database that will help us keep up with 
+                 . Other than that, we also are pulling a database that will help us keep up with 
                  real time events and all that is going on currently
                  . So i better include the network and the memory with the cpu stats
                  . the real time model will most likely use less power and stay awake in the background
@@ -446,6 +459,12 @@ def quick_scan():
     functionality
 
     """
+    """
+to hasten up the process i will be itertaing through the most likely files then towards the the less likely
+with a faster method
+
+"""
+
     return
 
 
